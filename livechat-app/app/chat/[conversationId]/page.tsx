@@ -11,14 +11,23 @@ type Props = {
 
 export default async function ConversationPage({ params }: Props) {
   const { conversationId } = await params
-
   const id = conversationId as Id<"conversations">
 
   return (
     <div className="flex flex-col h-full">
-      <ConversationHeader conversationId={id} />
-      <MessageList conversationId={id} />
-      <MessageInput conversationId={id} />
+      
+      <div className="shrink-0">
+        <ConversationHeader conversationId={id} />
+      </div>
+
+      <div className="flex-1 overflow-y-auto">
+        <MessageList conversationId={id} />
+      </div>
+
+      <div className="shrink-0">
+        <MessageInput conversationId={id} />
+      </div>
+
     </div>
   )
 }
