@@ -29,7 +29,24 @@ export const createUser = mutation({
 
 export const getUsers = query({
   handler: async (ctx) => {
-    return await ctx.db.query("users").collect();
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) return [];
+
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) =>
+        q.eq("clerkId", identity.subject)
+      )
+      .unique();
+
+    if (!currentUser) return [];
+
+    const users = await ctx.db.query("users").collect();
+
+    return users.filter(
+      (user) => user._id !== currentUser._id
+    );
   },
 });
 
@@ -46,5 +63,24 @@ export const searchUsers = query({
         user.clerkId !== args.clerkId &&
         user.name.toLowerCase().includes(args.search.toLowerCase())
     )
+  },
+})
+
+export const getCurrentUser = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity()
+
+    if (!identity) {
+      return null
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) =>
+        q.eq("clerkId", identity.subject)
+      )
+      .unique()
+
+    return user
   },
 })

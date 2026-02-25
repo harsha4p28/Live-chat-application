@@ -22,7 +22,7 @@ export default function Sidebar() {
       <div className="flex-1 overflow-y-auto space-y-2 px-4 pb-4">
         {users ? (
           users.map((user) => (
-            <ConversationItem key={user._id} name={user.name} lastMessage="" />
+            <ConversationItem key={user._id} name={user.name} lastMessage="" id={user._id} />
           ))
         ) : (
           <div className="flex justify-center items-center">
