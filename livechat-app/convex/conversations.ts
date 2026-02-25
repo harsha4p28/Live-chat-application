@@ -1,34 +1,104 @@
-import { mutation } from "./_generated/server"
+import { mutation, query } from "./_generated/server"
 import { v } from "convex/values"
 
-export const getOrCreateConversation = mutation({
-  args: {
-    currentUserId: v.id("users"),
-    otherUserId: v.id("users"),
-  },
-  handler: async (ctx, args) => {
+export const getUserConversations = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) return []
+
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) =>
+        q.eq("clerkId", identity.subject)
+      )
+      .unique()
+
+    if (!currentUser) return []
 
     const memberships = await ctx.db
       .query("conversationMembers")
-      .withIndex("by_user", (q) => q.eq("userId", args.currentUserId))
+      .withIndex("by_user", (q) =>
+        q.eq("userId", currentUser._id)
+      )
       .collect()
 
-    for (const member of memberships) {
+    const conversations = await Promise.all(
+      memberships.map(async (membership) => {
+        const members = await ctx.db
+          .query("conversationMembers")
+          .withIndex("by_conversation", (q) =>
+            q.eq("conversationId", membership.conversationId)
+          )
+          .collect()
+
+        const otherMember = members.find(
+          (m) => m.userId !== currentUser._id
+        )
+
+        const otherUser = otherMember
+          ? await ctx.db.get(otherMember.userId)
+          : null
+
+        const lastMessage = await ctx.db
+          .query("messages")
+          .withIndex("by_conversation", (q) =>
+            q.eq("conversationId", membership.conversationId)
+          )
+          .order("desc")
+          .first()
+
+        return {
+          conversationId: membership.conversationId,
+          name: otherUser?.name ?? "Unknown",
+          lastMessage: lastMessage?.text ?? "No messages yet",
+        }
+      })
+    )
+
+    return conversations
+  },
+})
+
+export const getOrCreateConversation = mutation({
+  args: {
+    otherUserId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) throw new Error("Unauthorized")
+
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) =>
+        q.eq("clerkId", identity.subject)
+      )
+      .unique()
+
+    if (!currentUser) throw new Error("User not found")
+
+    const currentMemberships = await ctx.db
+      .query("conversationMembers")
+      .withIndex("by_user", (q) =>
+        q.eq("userId", currentUser._id)
+      )
+      .collect()
+
+    for (const membership of currentMemberships) {
       const members = await ctx.db
         .query("conversationMembers")
         .withIndex("by_conversation", (q) =>
-          q.eq("conversationId", member.conversationId)
+          q.eq("conversationId", membership.conversationId)
         )
         .collect()
 
-      const userIds = members.map((m) => m.userId)
+      const memberIds = members.map((m) => m.userId)
 
       if (
-        userIds.length === 2 &&
-        userIds.includes(args.currentUserId) &&
-        userIds.includes(args.otherUserId)
+        memberIds.includes(currentUser._id) &&
+        memberIds.includes(args.otherUserId) &&
+        memberIds.length === 2
       ) {
-        return member.conversationId
+        return membership.conversationId
       }
     }
 
@@ -39,7 +109,7 @@ export const getOrCreateConversation = mutation({
 
     await ctx.db.insert("conversationMembers", {
       conversationId,
-      userId: args.currentUserId,
+      userId: currentUser._id,
     })
 
     await ctx.db.insert("conversationMembers", {
@@ -48,5 +118,41 @@ export const getOrCreateConversation = mutation({
     })
 
     return conversationId
+  },
+})
+
+export const getConversationDetails = query({
+  args: {
+    conversationId: v.id("conversations"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) return null
+
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) =>
+        q.eq("clerkId", identity.subject)
+      )
+      .unique()
+
+    if (!currentUser) return null
+
+    const members = await ctx.db
+      .query("conversationMembers")
+      .withIndex("by_conversation", (q) =>
+        q.eq("conversationId", args.conversationId)
+      )
+      .collect()
+
+    const otherMember = members.find(
+      (m) => m.userId !== currentUser._id
+    )
+
+    if (!otherMember) return null
+
+    const otherUser = await ctx.db.get(otherMember.userId)
+
+    return otherUser
   },
 })
