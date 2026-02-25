@@ -7,24 +7,24 @@ type Props = {
   name: string
   lastMessage: string
   conversationId: Id<"conversations">
+  className?: string
 }
 
 export default function ConversationItem({
   name,
   lastMessage,
   conversationId,
+  className = "",
 }: Props) {
   const router = useRouter()
 
   return (
     <div
-      className="p-3 m-1 gap-2 rounded-xl hover:bg-zinc-100 cursor-pointer transition border-1"
+      className={`flex flex-col p-3 gap-1 rounded-xl hover:bg-gray-100 cursor-pointer transition-all border border-transparent hover:border-gray-200 shadow-sm ${className}`}
       onClick={() => router.push(`/chat/${conversationId}`)}
     >
-      <div className="font-medium">{name}</div>
-      <div className="text-sm text-zinc-500 truncate">
-        {lastMessage}
-      </div>
+      <div className="font-semibold text-gray-800">{name}</div>
+      <div className="text-sm text-gray-500 truncate">{lastMessage}</div>
     </div>
   )
 }

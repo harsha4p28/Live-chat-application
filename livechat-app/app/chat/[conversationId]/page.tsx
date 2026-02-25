@@ -14,18 +14,20 @@ export default async function ConversationPage({ params }: Props) {
   const id = conversationId as Id<"conversations">
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-gray-50">
       
       <div className="shrink-0">
         <ConversationHeader conversationId={id} />
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        <MessageList conversationId={id} />
-      </div>
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <div className="flex-1 overflow-y-auto">
+          <MessageList conversationId={id}  />
+        </div>
 
-      <div className="shrink-0">
-        <MessageInput conversationId={id} />
+        <div className="shrink-0 bg-gray-50 border-t border-gray-200">
+          <MessageInput conversationId={id} />
+        </div>
       </div>
 
     </div>

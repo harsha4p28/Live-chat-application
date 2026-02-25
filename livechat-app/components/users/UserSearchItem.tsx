@@ -8,9 +8,11 @@ import { Id } from "@/convex/_generated/dataModel"
 type Props = {
   userId: Id<"users">
   name: string
+  className?: string
+  image: string
 }
 
-export default function UserSearchItem({ userId, name }: Props) {
+export default function UserSearchItem({ userId, name, className = "" ,image}: Props) {
   const router = useRouter()
   const getOrCreateConversation = useMutation(
     api.conversations.getOrCreateConversation
@@ -27,9 +29,15 @@ export default function UserSearchItem({ userId, name }: Props) {
   return (
     <div
       onClick={handleClick}
-      className="p-2 rounded-lg hover:bg-zinc-100 cursor-pointer"
+      className={`flex items-center p-3 gap-3 rounded-xl hover:bg-gray-100 cursor-pointer transition-all border border-transparent hover:border-gray-200 shadow-sm ${className}`}
     >
-      {name}
+      {/* Avatar placeholder */}
+      <div className="h-10 w-10 bg-gray-300 rounded-full flex-shrink-0" >
+        <img src={image} className="h-full w-full rounded-full object-cover" />
+      </div>
+      <div className="flex-1">
+        <div className="font-medium text-gray-800">{name}</div>
+      </div>
     </div>
   )
 }
