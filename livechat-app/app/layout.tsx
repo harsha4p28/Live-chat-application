@@ -1,21 +1,24 @@
 "use client";
 import { ClerkProvider } from "@clerk/nextjs";
-import { ConvexProvider, ConvexReactClient } from "convex/react";
+import ConvexClientProvider from "@/components/ConvexClientProvider";
 import "./globals.css";
+import SyncUser from "@/hooks/useSyncUser";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
   return (
-    <ClerkProvider>
-      <ConvexProvider client={convex}>
-        <html lang="en">
-          <body>{children}</body>
-        </html>
-      </ConvexProvider>
-    </ClerkProvider>
+    <html lang="en">
+      <body>
+        <ClerkProvider>
+          <ConvexClientProvider>
+            <SyncUser />
+            {children}
+            </ConvexClientProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }
