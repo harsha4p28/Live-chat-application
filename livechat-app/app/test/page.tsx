@@ -5,7 +5,6 @@ import { api } from "@/convex/_generated/api";
 
 export default function UsersPage() {
   const users = useQuery(api.users.getUsers);
-  console.log(users);
   if (!users) return <div>Loading...</div>;
 
   return (
