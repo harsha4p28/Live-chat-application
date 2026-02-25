@@ -53,15 +53,28 @@ export const getUsers = query({
 export const searchUsers = query({
   args: {
     search: v.string(),
-    clerkId: v.string(),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) return []
+
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) =>
+        q.eq("clerkId", identity.subject)
+      )
+      .unique()
+
+    if (!currentUser) return []
+
     const users = await ctx.db.query("users").collect()
 
     return users.filter(
       (user) =>
-        user.clerkId !== args.clerkId &&
-        user.name.toLowerCase().includes(args.search.toLowerCase())
+        user._id !== currentUser._id &&
+        user.name
+          .toLowerCase()
+          .includes(args.search.toLowerCase())
     )
   },
 })

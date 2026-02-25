@@ -28,6 +28,7 @@ export default function MessageList({ conversationId }: Props) {
           key={message._id}
           text={message.text}
           isOwn={message.senderId === currentUser._id}
+          time={new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         />
       ))}
     </div>
