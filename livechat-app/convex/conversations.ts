@@ -157,3 +157,82 @@ export const getConversationDetails = query({
     return otherUser
   },
 })
+
+export const markAsRead = mutation({
+  args: {
+    conversationId: v.id("conversations"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) throw new Error("Unauthorized")
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", q =>
+        q.eq("clerkId", identity.subject)
+      )
+      .unique()
+
+    if (!user) throw new Error("User not found")
+
+    const existing = await ctx.db
+      .query("conversationReads")
+      .withIndex("by_user_conversation", q =>
+        q.eq("userId", user._id)
+         .eq("conversationId", args.conversationId)
+      )
+      .unique()
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        lastReadAt: Date.now(),
+      })
+    } else {
+      await ctx.db.insert("conversationReads", {
+        conversationId: args.conversationId,
+        userId: user._id,
+        lastReadAt: Date.now(),
+      })
+    }
+  },
+})
+
+export const getUnreadCount = query({
+  args: {
+    conversationId: v.id("conversations"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) return 0
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", q =>
+        q.eq("clerkId", identity.subject)
+      )
+      .unique()
+
+    if (!user) return 0
+
+    const read = await ctx.db
+      .query("conversationReads")
+      .withIndex("by_user_conversation", q =>
+        q.eq("userId", user._id)
+         .eq("conversationId", args.conversationId)
+      )
+      .unique()
+
+    const lastReadAt = read?.lastReadAt ?? 0
+
+    const unreadMessages = await ctx.db
+      .query("messages")
+      .withIndex("by_conversation", q =>
+        q.eq("conversationId", args.conversationId)
+      )
+      .collect()
+
+    return unreadMessages.filter(
+      m => m.createdAt > lastReadAt && m.senderId !== user._id
+    ).length
+  },
+})

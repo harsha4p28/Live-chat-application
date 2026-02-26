@@ -35,7 +35,7 @@ export default function ConversationHeader({ conversationId }: Props) {
     <div className="p-3.5 border-b bg-white flex items-center gap-3">
       <button
         onClick={() => router.push("/chat/")}
-        className="sm:hidden p-2 rounded-full hover:bg-zinc-100 transition"
+        className="md:hidden p-2 rounded-full hover:bg-zinc-100 transition"
       >
         <ArrowLeft className="w-5 h-5" />
       </button>

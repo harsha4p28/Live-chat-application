@@ -1,15 +1,17 @@
-"use client"
+"use client";
 
-import { useRouter } from "next/navigation"
-import { Id } from "@/convex/_generated/dataModel"
+import { useRouter } from "next/navigation";
+import { Id } from "@/convex/_generated/dataModel";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 type Props = {
-  name: string
-  lastMessage: string
-  conversationId: Id<"conversations">
-  className?: string
-  profileImage: string | null
-}
+  name: string;
+  lastMessage: string;
+  conversationId: Id<"conversations">;
+  className?: string;
+  profileImage: string | null;
+};
 
 export default function ConversationItem({
   name,
@@ -18,8 +20,12 @@ export default function ConversationItem({
   className = "",
   profileImage,
 }: Props) {
-  const router = useRouter()
+  const router = useRouter();
 
+  const unreadCount =
+    useQuery(api.conversations.getUnreadCount, {
+      conversationId,
+    }) ?? 0;
   return (
     <div
       className={`flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 cursor-pointer transition-all border border-transparent hover:border-gray-200 hover:shadow-md ${className}`}
@@ -40,13 +46,17 @@ export default function ConversationItem({
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="font-semibold text-gray-800 truncate">
-          {name}
+        <div className="flex items-center justify-between">
+          <div className="font-semibold text-gray-800 truncate">{name}</div>
+
+          {unreadCount > 0 && (
+            <div className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
+              {unreadCount}
+            </div>
+          )}
         </div>
-        <div className="text-sm text-gray-500 truncate">
-          {lastMessage}
-        </div>
+        <div className="text-sm text-gray-500 truncate">{lastMessage}</div>
       </div>
     </div>
-  )
+  );
 }

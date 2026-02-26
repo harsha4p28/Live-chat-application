@@ -1,31 +1,29 @@
-"use client"
+"use client";
 
-import { useQuery } from "convex/react"
-import { api } from "@/convex/_generated/api"
-import MessageItem from "./MessageItem"
-import { Id } from "@/convex/_generated/dataModel"
-import { useEffect, useRef } from "react"
-import { ClipLoader } from "react-spinners"
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import MessageItem from "./MessageItem";
+import { Id } from "@/convex/_generated/dataModel";
+import { useEffect, useRef } from "react";
+import { ClipLoader } from "react-spinners";
 
 type Props = {
-  conversationId: Id<"conversations">
-}
+  conversationId: Id<"conversations">;
+};
 
 function formatMessageTime(timestamp: number) {
-  const messageDate = new Date(timestamp)
-  const now = new Date()
+  const messageDate = new Date(timestamp);
+  const now = new Date();
 
-  const isToday =
-    messageDate.toDateString() === now.toDateString()
+  const isToday = messageDate.toDateString() === now.toDateString();
 
-  const isSameYear =
-    messageDate.getFullYear() === now.getFullYear()
+  const isSameYear = messageDate.getFullYear() === now.getFullYear();
 
   if (isToday) {
     return messageDate.toLocaleTimeString([], {
       hour: "numeric",
       minute: "2-digit",
-    })
+    });
   }
 
   if (isSameYear) {
@@ -34,7 +32,7 @@ function formatMessageTime(timestamp: number) {
       day: "numeric",
       hour: "numeric",
       minute: "2-digit",
-    })
+    });
   }
 
   return messageDate.toLocaleString([], {
@@ -43,30 +41,37 @@ function formatMessageTime(timestamp: number) {
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
-  })
+  });
 }
 
 export default function MessageList({ conversationId }: Props) {
   const messages = useQuery(
     api.messages.getMessages,
     conversationId ? { conversationId } : "skip",
-  )
+  );
 
-  const currentUser = useQuery(api.users.getCurrentUser)
+  const currentUser = useQuery(api.users.getCurrentUser);
 
-  const bottomRef = useRef<HTMLDivElement | null>(null)
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  const markAsRead = useMutation(api.conversations.markAsRead);
 
   useEffect(() => {
-    if (!messages) return
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+    if (!messages || !conversationId) return;
+    markAsRead({ conversationId });
+  }, [messages, conversationId]);
+
+  useEffect(() => {
+    if (!messages) return;
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   if (!messages || !currentUser) {
     return (
       <div className="h-screen flex items-center justify-center">
         <ClipLoader size={40} />
       </div>
-    )
+    );
   }
 
   return (
@@ -85,5 +90,5 @@ export default function MessageList({ conversationId }: Props) {
 
       <div ref={bottomRef} />
     </div>
-  )
+  );
 }
