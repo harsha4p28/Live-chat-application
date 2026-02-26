@@ -79,6 +79,7 @@ export default function MessageList({ conversationId }: Props) {
           isOwn={message.senderId === currentUser._id}
           time={formatMessageTime(message.createdAt)}
           reactions={message.reactions}
+          deleted={message.deleted}
         />
       ))}
 

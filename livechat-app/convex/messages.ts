@@ -76,3 +76,33 @@ export const sendMessage = mutation({
     })
   },
 })
+
+export const deleteMessage = mutation({
+  args: {
+    messageId: v.id("messages"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity()
+    if (!identity) throw new Error("Unauthorized")
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", q =>
+        q.eq("clerkId", identity.subject)
+      )
+      .unique()
+
+    if (!user) throw new Error("User not found")
+
+    const message = await ctx.db.get(args.messageId)
+    if (!message) throw new Error("Message not found")
+
+    if (message.senderId !== user._id) {
+      throw new Error("Not allowed")
+    }
+
+    await ctx.db.patch(args.messageId, {
+      deleted: true,
+    })
+  },
+})
