@@ -21,13 +21,13 @@ export default function LandingPage() {
       </p>
 
       <div className="flex gap-4 mb-10">
-        <SignInButton mode="modal">
+        <SignInButton mode="modal" fallbackRedirectUrl="/chat">
           <Button className="hover:scale-105 transition-transform duration-200 cursor-pointer">
             Sign In
           </Button>
         </SignInButton>
 
-        <SignUpButton mode="modal">
+        <SignUpButton mode="modal" fallbackRedirectUrl="/chat">
           <Button
             variant="outline"
             className="hover:scale-105 transition-transform duration-200 cursor-pointer"

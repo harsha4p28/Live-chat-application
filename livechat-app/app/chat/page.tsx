@@ -1,4 +1,11 @@
-export default function ChatPage() {
+import { auth } from "@clerk/nextjs/server"
+import { redirect } from "next/navigation"
+
+export default async function ChatPage() {
+  const { userId } = await auth()
+  if (!userId) {
+    redirect("/")
+  }
   return (
     <div className="flex flex-col items-center justify-center h-full bg-gradient-to-b from-gray-50 via-white to-gray-50 p-6">
       <div className="max-w-md text-center">

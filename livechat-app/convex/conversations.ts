@@ -51,6 +51,7 @@ export const getUserConversations = query({
           conversationId: membership.conversationId,
           name: otherUser?.name ?? "Unknown",
           lastMessage: lastMessage?.text ?? "No messages yet",
+          profileImage: otherUser?.image ?? null,
         }
       })
     )

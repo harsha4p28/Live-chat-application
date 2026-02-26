@@ -2,6 +2,8 @@ import { Id } from "@/convex/_generated/dataModel"
 import MessageList from "@/components/messages/MessageList"
 import MessageInput from "@/components/messages/MessageInput"
 import ConversationHeader from "@/components/conversations/ConversationHeader"
+import { auth } from "@clerk/nextjs/server"
+import { redirect } from "next/navigation"
 
 type Props = {
   params: Promise<{
@@ -10,6 +12,11 @@ type Props = {
 }
 
 export default async function ConversationPage({ params }: Props) {
+   const { userId } = await auth()
+
+  if (!userId) {
+    redirect("/")
+  }
   const { conversationId } = await params
   const id = conversationId as Id<"conversations">
 

@@ -31,7 +31,6 @@ export default function UserSearchItem({ userId, name, className = "" ,image}: P
       onClick={handleClick}
       className={`flex items-center p-3 gap-3 rounded-xl hover:bg-gray-100 cursor-pointer transition-all border border-transparent hover:border-gray-200 shadow-sm ${className}`}
     >
-      {/* Avatar placeholder */}
       <div className="h-10 w-10 bg-gray-300 rounded-full flex-shrink-0" >
         <img src={image} className="h-full w-full rounded-full object-cover" />
       </div>
