@@ -74,9 +74,11 @@ export default function MessageList({ conversationId }: Props) {
       {messages.map((message) => (
         <MessageItem
           key={message._id}
+          messageId={message._id}
           text={message.text}
           isOwn={message.senderId === currentUser._id}
           time={formatMessageTime(message.createdAt)}
+          reactions={message.reactions}
         />
       ))}
 

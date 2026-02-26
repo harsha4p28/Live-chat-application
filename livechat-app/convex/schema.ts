@@ -35,5 +35,13 @@ export default defineSchema({
     createdAt: v.number(),
     deleted: v.optional(v.boolean()),
   })
-    .index("by_conversation", ["conversationId"])
+    .index("by_conversation", ["conversationId"]),
+
+  reactions: defineTable({
+    messageId: v.id("messages"),
+    userId: v.id("users"),
+    value: v.string(), 
+  })
+    .index("by_message", ["messageId"])
+    .index("by_user_message", ["userId", "messageId"]),
 })

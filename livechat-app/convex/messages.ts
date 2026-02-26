@@ -6,12 +6,47 @@ export const getMessages = query({
     conversationId: v.id("conversations"),
   },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const messages = await ctx.db
       .query("messages")
       .withIndex("by_conversation", (q) =>
         q.eq("conversationId", args.conversationId)
       )
       .collect()
+
+    const messagesWithReactions = await Promise.all(
+      messages.map(async (message) => {
+        const reactions = await ctx.db
+          .query("reactions")
+          .withIndex("by_message", (q) =>
+            q.eq("messageId", message._id)
+          )
+          .collect()
+
+        const groupedMap = reactions.reduce(
+          (acc, reaction) => {
+            acc[reaction.value] =
+              (acc[reaction.value] || 0) + 1
+            return acc
+          },
+          {} as Record<string, number>
+        )
+
+        const groupedArray = Object.entries(groupedMap).map(
+          ([value, count]) => ({
+            value,
+            count,
+          })
+        )   
+        
+
+        return {
+          ...message,
+          reactions: groupedArray,
+        }
+      })
+    )
+
+    return messagesWithReactions
   },
 })
 
