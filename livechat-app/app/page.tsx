@@ -1,11 +1,13 @@
-import React from 'react'
+import LandingPage from "@/components/landing/LandingPage"
+import { auth } from "@clerk/nextjs/server"
+import { redirect } from "next/navigation"
 
-const page = () => {
-  return (
-    <div className="flex items-center justify-center h-screen bg-black text-white">
-      Tailwind working 
-    </div>
-  )
+export default async function HomePage() {
+  const { userId } = await auth()
+
+  if (userId) {
+    redirect("/chat")
+  }
+
+  return <LandingPage />
 }
-
-export default page

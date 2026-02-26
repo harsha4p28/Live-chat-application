@@ -19,7 +19,7 @@ export default function ConversationHeader({ conversationId }: Props) {
   if (!recipient) return null;
 
   const isOnline =
-    recipient.lastSeen && Date.now() - recipient.lastSeen < 10000;
+    recipient.lastSeen && Date.now() - recipient.lastSeen < 20000;
 
   return (
     <div className="p-3.5 border-b bg-white flex items-center gap-3">
