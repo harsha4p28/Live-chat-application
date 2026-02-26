@@ -5,6 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
 
 type Props = {
   conversationId: Id<"conversations">;
@@ -15,11 +16,20 @@ export default function ConversationHeader({ conversationId }: Props) {
     conversationId,
   });
   const router = useRouter();
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   if (!recipient) return null;
 
   const isOnline =
-    recipient.lastSeen && Date.now() - recipient.lastSeen < 20000;
+    typeof recipient.lastSeen === "number" && now - recipient.lastSeen < 60000;
 
   return (
     <div className="p-3.5 border-b bg-white flex items-center gap-3">
