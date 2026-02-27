@@ -92,6 +92,7 @@ export default function Sidebar() {
               name={conv.name}
               lastMessage={conv.lastMessage}
               profileImage={conv.profileImage}
+              lastSeen={conv.lastSeen} 
             />
           ))
         )}

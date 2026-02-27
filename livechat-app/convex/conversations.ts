@@ -53,6 +53,7 @@ export const getUserConversations = query({
           lastMessage: lastMessage?.text ?? "No messages yet",
           profileImage: otherUser?.image ?? null,
           lastMessageTime: lastMessage?.createdAt ?? 0,  
+          lastSeen: otherUser?.lastSeen ?? null,
         }
       })
     )

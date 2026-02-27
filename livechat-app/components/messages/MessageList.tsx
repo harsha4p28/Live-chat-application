@@ -108,6 +108,15 @@ export default function MessageList({ conversationId }: Props) {
     );
   }
 
+  if (messages.length === 0) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2">
+        <div className="text-4xl">👋</div>
+        <p className="text-sm font-medium">No messages yet</p>
+        <p className="text-xs">Say hello to start the conversation!</p>
+      </div>
+    );
+  }
   return (
     <div className="relative h-full overflow-hidden">
       <div
