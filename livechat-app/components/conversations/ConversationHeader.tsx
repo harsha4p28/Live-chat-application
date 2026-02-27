@@ -5,7 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useNow } from "@/hooks/useNow";
 
 type Props = {
   conversationId: Id<"conversations">;
@@ -16,15 +16,7 @@ export default function ConversationHeader({ conversationId }: Props) {
     conversationId,
   });
   const router = useRouter();
-  const [now, setNow] = useState(Date.now());
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(Date.now());
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
+  const now = useNow();
 
   if (!recipient) return null;
 

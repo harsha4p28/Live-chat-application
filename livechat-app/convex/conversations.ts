@@ -58,7 +58,9 @@ export const getUserConversations = query({
       })
     )
 
-    return conversations.sort((a, b) => b.lastMessageTime - a.lastMessageTime)
+    return conversations
+  .filter((c) => c.lastMessageTime > 0) 
+  .sort((a, b) => b.lastMessageTime - a.lastMessageTime)
   },
 })
 
