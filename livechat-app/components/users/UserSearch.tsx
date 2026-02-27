@@ -34,6 +34,7 @@ export default function UserSearch() {
                   key={user._id}
                   userId={user._id}
                   name={user.name}
+                  image={user.image}   
                 />
               ))
             ) : (
