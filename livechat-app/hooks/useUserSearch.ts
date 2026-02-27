@@ -9,6 +9,5 @@ export function useUserSearch(search: string) {
 
   return useQuery(api.users.searchUsers, {
     search,
-    clerkId: user?.id ?? "",
   })
 }
