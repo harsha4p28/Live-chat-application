@@ -52,11 +52,12 @@ export const getUserConversations = query({
           name: otherUser?.name ?? "Unknown",
           lastMessage: lastMessage?.text ?? "No messages yet",
           profileImage: otherUser?.image ?? null,
+          lastMessageTime: lastMessage?.createdAt ?? 0,  
         }
       })
     )
 
-    return conversations
+    return conversations.sort((a, b) => b.lastMessageTime - a.lastMessageTime)
   },
 })
 

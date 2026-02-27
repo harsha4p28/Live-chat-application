@@ -4,6 +4,7 @@ import MessageInput from "@/components/messages/MessageInput"
 import ConversationHeader from "@/components/conversations/ConversationHeader"
 import { auth } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
+import TypingIndicator from "@/components/messages/TypingIndicator"
 
 type Props = {
   params: Promise<{
@@ -32,6 +33,7 @@ export default async function ConversationPage({ params }: Props) {
           <MessageList conversationId={id}  />
         </div>
 
+        <TypingIndicator conversationId={id} />
         <div className="shrink-0 bg-gray-50 border-t border-gray-200">
           <MessageInput conversationId={id} />
         </div>

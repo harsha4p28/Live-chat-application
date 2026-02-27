@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
@@ -12,15 +12,29 @@ type Props = {
 export default function MessageInput({ conversationId }: Props) {
   const [text, setText] = useState("")
   const sendMessage = useMutation(api.messages.sendMessage)
+  const setTyping = useMutation(api.typing.setTyping)
+  const clearTyping = useMutation(api.typing.clearTyping)
+
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setText(e.target.value)
+
+    setTyping({ conversationId })
+
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+    typingTimeoutRef.current = setTimeout(() => {
+      clearTyping({ conversationId })
+    }, 2000)
+  }
 
   const handleSend = async () => {
     if (!text.trim()) return
 
-    await sendMessage({
-      conversationId,
-      text,
-    })
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+    clearTyping({ conversationId })
 
+    await sendMessage({ conversationId, text })
     setText("")
   }
 
@@ -30,7 +44,7 @@ export default function MessageInput({ conversationId }: Props) {
         <input
           type="text"
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={handleChange}
           onKeyDown={(e) => {
             if (e.key === "Enter") handleSend()
           }}

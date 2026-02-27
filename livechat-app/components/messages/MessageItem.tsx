@@ -38,7 +38,7 @@ export default function MessageItem({
         >
           <div className="break-words">
             {deleted ? (
-              <span className="italic text-zinc-200">
+              <span className="italic text-zinc-400">
                 This message was deleted
               </span>
             ) : (
